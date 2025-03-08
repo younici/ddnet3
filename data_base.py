@@ -29,7 +29,7 @@ def set_fullname(id, username, name):
 def get_user(id):
     with sqlite3.connect('DataBase/Users.db') as db:
         cursor = db.cursor()
-        query = f"""SELECT local_id, id, username, name, tt_username, FROM users WHERE id = ?"""
+        query = f"""SELECT local_id, id, username, name, tt_username FROM users WHERE id = ?"""
         cursor.execute(query, (id,))
         return cursor.fetchone()
 
@@ -43,7 +43,7 @@ def get_username(id):
 def get_user_tt_username(id):
     with sqlite3.connect('DataBase/Users.db') as db:
         cursor = db.cursor()
-        query = f"""SELECT name FROM users WHERE id = ?"""
+        query = f"""SELECT tt_username FROM users WHERE id = ?"""
         cursor.execute(query, (id,))
         return cursor.fetchone()[0]
 
