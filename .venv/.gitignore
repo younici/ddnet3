@@ -1,2 +1,1 @@
-# created by virtualenv automatically
-echo "api_token" >> .gitignore
+api_token.py=
