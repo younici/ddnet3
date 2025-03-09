@@ -37,7 +37,7 @@ async def user_command(message: Message):
             if db.get_user(message.reply_to_message.from_user.id) is not None:
                 user = db.get_user(message.reply_to_message.from_user.id)
                 await message.answer(
-                   f'### акаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}',
+                   f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>',
                         parse_mode=ParseMode.HTML)
             else:
                 await message.answer("пользователя нету в базе данных")
