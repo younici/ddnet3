@@ -11,10 +11,17 @@ async def start_command(message: Message):
 
 @router.message(Command('r'))
 async def register_command(message: Message, command: CommandObject):
+    print(command.args)
     if command.args is None:
         await message.answer('вы не ввели данные')
         return
-    ttusername = command.args
+    try:
+        ttusername = command.args
+    except ValueError:
+        await message.answer('не правильный формат данных')
+        return
+    if db.get_user(message.from_user.id) is None:
+        db.insert_user(db.user_count() + 1, message.from_user.id, message.from_user.username, message.from_user.first_name, None)
     if ttusername.startswith('@'):
         if db.get_user_tt_username(message.from_user.id) is None:
             db.set_ttname(message.from_user.id, ttusername)

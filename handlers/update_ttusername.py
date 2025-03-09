@@ -10,6 +10,13 @@ async def update_username_command(message: Message, command: CommandObject):
     if command.args is None:
         await message.answer('вы не ввели данные')
         return
-    username = command.args
-    db.set_ttname(message.from_user.id, username)
-    await message.answer('вы обновили свое имя')
+    try:
+        username = command.args
+    except ValueError:
+        await message.answer("некоректно введеные данные")
+        return
+    if username.startswith('@'):
+        db.set_ttname(message.from_user.id, username)
+        await message.answer('вы обновили свое имя')
+    else:
+        await message.answer("в начале дожно быть @")
