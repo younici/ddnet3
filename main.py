@@ -7,7 +7,6 @@ async def main():
     bot = Bot(TOKEN)
     dp = Dispatcher()
     dp.include_router(manager.router)
-#    dp.include_router(install_bot.router)
     dp.include_router(info.router)
     dp.include_router(start.router)
     await bot.delete_webhook(drop_pending_updates=True)
