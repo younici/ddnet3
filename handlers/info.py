@@ -20,7 +20,7 @@ async def users_command(message: Message):
                 if user[2] is not None:
                     answer += f'имя телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>\nакаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\n\n'
                 else:
-                    answer += f'имя телеграмм: <a href="tg://user?id={user[2]}">{user[3]}</a>\nакаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\n\n'
+                    answer += f'имя телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\nакаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\n\n'
                 if a == 30:
                     await message.answer(answer, parse_mode=ParseMode.HTML)
                     answer = ''
@@ -37,7 +37,7 @@ async def user_command(message: Message):
             if db.get_user(message.reply_to_message.from_user.id) is not None:
                 user = db.get_user(message.reply_to_message.from_user.id)
                 await message.answer(
-                   f'### акаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}\n</a>~имя телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>',
+                   f'### акаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}',
                         parse_mode=ParseMode.HTML)
             else:
                 await message.answer("пользователя нету в базе данных")
