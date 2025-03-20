@@ -54,6 +54,13 @@ def get_user_tt_username(id):
         cursor.execute(query, (id,))
         return cursor.fetchone()[0]
 
+def get_by_tt_username(tt_username):
+    with sqlite3.connect('DataBase/Users.db') as db:
+        cursor = db.cursor()
+        query = f"""SELECT local_id, id, username, name, tt_username FROM users WHERE tt_username = ?"""
+        cursor.execute(query, (tt_username,))
+        return cursor.fetchone()
+
 def del_user(id):
     with sqlite3.connect('DataBase/Users.db') as db:
         cursor = db.cursor()

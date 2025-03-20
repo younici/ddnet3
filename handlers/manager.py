@@ -1,6 +1,8 @@
 from aiogram import Router, Bot
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
+
+import main
 from api_token import TOKEN
 import data_base as db
 
@@ -95,6 +97,24 @@ async def admr_command(message: Message, command: CommandObject):
                     await message.answer('вы установили имя для пользователя')
                 else:
                     await message.answer("в начале должно быть @")
+        else:
+            await message.answer('только для админа')
+    else:
+        await message.answer('только для чата клуб ддрейсеров')
+
+@router.message(Command('updmessage'))
+async def updmessage_command(message: Message, command: CommandObject):
+    if message.chat.id == -1002072690518:
+        if message.from_user.id == 1610414602:
+            if command.args is None:
+                await message.answer('вы не ввели данные')
+                return
+            try:
+                status = command.args
+            except ValueError:
+                await message.answer("некоректно введеные данные")
+                return
+            main.updateMessage = int(status) == 1
         else:
             await message.answer('только для админа')
     else:
