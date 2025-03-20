@@ -1,0 +1,5 @@
+aiogram
+asyncio
+pytz
+datetime
+sqlite3
