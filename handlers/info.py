@@ -13,7 +13,7 @@ async def users_command(message: Message):
         answer = ''
         a = 0
         for i in range(1, db.user_count() + 1):
-            users[i - 1] = db.get_user_by_local_id(i+1)
+            users[i - 1] = db.get_user_by_local_id(i)
         for user in users.values():
             if user is not None and user[4] is not None:
                 a += 1
@@ -67,6 +67,13 @@ async def search_command(message: Message, command: CommandObject):
             else:
                 await message.answer(f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nаккаунт телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n', parse_mode=ParseMode.HTML)
         else:
-            await message.answer('пользователь не был найден')
+            if db.search_users_by_word(username) is not None:
+                users = db.search_users_by_word(username)
+                ttnames = ''
+                for user in users:
+                    ttnames += f" {user[4]} "
+                await message.answer(f'возможно вы имели ввиду кого-то из их? {ttnames}')
+            else:
+                await message.answer('пользователь не был найден')
     else:
         await message.answer('только для чата клуб ддрейсеров')

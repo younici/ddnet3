@@ -1,11 +1,8 @@
-import sqlite3, os
-
-if not os.path.exists('DataBase'):
-    os.makedirs('Database')
+import sqlite3
 
 with sqlite3.connect('DataBase/Users.db') as db:
     cursor = db.cursor()
-    query = """ CREATE TABLE IF NOT EXISTS users(local_id INTEGER, tt_username TEXT, id INTEGER, username TEXT, name TEXT) """
+    query = """ CREATE TABLE IF NOT EXISTS users(local_id INTEGER, id INTEGER, name TEXT, username TEXT, tt_username TEXT) """
     cursor.execute(query)
 
 def insert_user(local_id, id, username, name, tt_username):
@@ -72,6 +69,13 @@ def del_user_local_id(local_id):
         cursor = db.cursor()
         query = """DELETE FROM users WHERE local_id = ?"""
         cursor.execute(query, (local_id,))
+
+def search_users_by_word(word):
+    with sqlite3.connect('DataBase/Users.db') as db:
+        cursor = db.cursor()
+        query = """SELECT DISTINCT * FROM users WHERE tt_username LIKE ?"""
+        cursor.execute(query, (f"%{word}%",))
+        return cursor.fetchall()
 
 def user_count():
     with sqlite3.connect('DataBase/Users.db') as db:
