@@ -1,10 +1,9 @@
 from aiogram import Router, Bot
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
-
-import main
 from api_token import TOKEN
 import data_base as db
+import upd_data_base as updb
 
 router = Router()
 bot = Bot(TOKEN)
@@ -18,14 +17,19 @@ async def dellme_command(message: Message):
         await message.answer('только для чата клуб ддрейсеров')
 
 @router.message(Command('delluser'))
-async def delluser_command(message: Message):
+async def delluser_command(message: Message, command: CommandObject):
     if message.chat.id == -1002072690518:
         if message.from_user.id == 1610414602:
+            try:
+                id = command.args
+            except ValueError:
+                print('костыль')
             if message.reply_to_message is not None:
                 db.del_user(message.reply_to_message.from_user.id)
-                await message.answer('пользователь был удалён из базы данных')
             else:
-                await message.answer('нужно ответить на сообщение этой командой')
+                if id is not None:
+                    db.del_user(id)
+            await message.answer('пользователь был удалён из базы данных')
         else:
             await message.answer('только для админа')
     else:
@@ -102,8 +106,8 @@ async def admr_command(message: Message, command: CommandObject):
     else:
         await message.answer('только для чата клуб ддрейсеров')
 
-@router.message(Command('updmessage'))
-async def updmessage_command(message: Message, command: CommandObject):
+@router.message(Command('UMS'))
+async def update_message_status_command(message: Message, command: CommandObject):
     if message.chat.id == -1002072690518:
         if message.from_user.id == 1610414602:
             if command.args is None:
@@ -114,7 +118,56 @@ async def updmessage_command(message: Message, command: CommandObject):
             except ValueError:
                 await message.answer("некоректно введеные данные")
                 return
-            main.updateMessage = int(status) == 1
+            db.set_upd_message_status(status)
+            await message.answer(f'вы установили статус "{status}"')
+        else:
+            await message.answer('только для админа')
+    else:
+        await message.answer('только для чата клуб ддрейсеров')
+
+@router.message(Command('UMT'))
+async def update_message_text_command(message: Message, command: CommandObject):
+    if message.chat.id == -1002072690518:
+        if message.from_user.id == 1610414602:
+            if command.args is None:
+                await message.answer('вы не ввели данные')
+                return
+            try:
+                text = command.args
+            except ValueError:
+                await message.answer("некоректно введеные данные")
+                return
+            db.set_upd_message_text(text)
+            await message.answer(f'вы установили текст "{text}"')
+        else:
+            await message.answer('только для админа')
+    else:
+        await message.answer('только для чата клуб ддрейсеров')
+
+@router.message(Command('CD'))
+async def change_cooldown_command(message: Message, command: CommandObject):
+    if message.chat.id == -1002072690518:
+        if message.from_user.id == 1610414602:
+            if command.args is None:
+                await message.answer('вы не ввели данные')
+                return
+            try:
+                cooldown = command.args
+            except ValueError:
+                await message.answer("некоректно введеные данные")
+                return
+            db.set_command_cooldown(int(cooldown))
+            await message.answer(f'вы установили кулдаун {cooldown} секунд для команды /users')
+        else:
+            await message.answer('только для админа')
+    else:
+        await message.answer('только для чата клуб ддрейсеров')
+
+@router.message(Command('updateDB'))
+async def updateDB_command(message: Message, command: CommandObject):
+    if message.chat.id == -1002072690518:
+        if message.from_user.id == 1610414602:
+            await updb.notmain()
         else:
             await message.answer('только для админа')
     else:

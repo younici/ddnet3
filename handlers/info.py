@@ -3,30 +3,34 @@ from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
 from aiogram.enums import ParseMode
 import data_base as db
+import datetime
 
 router = Router()
 
 @router.message(Command('users'))
 async def users_command(message: Message):
     if message.chat.id == -1002072690518:
-        users = {}
-        answer = ''
-        a = 0
-        for i in range(1, db.user_count() + 1):
-            users[i - 1] = db.get_user_by_local_id(i)
-        for user in users.values():
-            if user is not None and user[4] is not None:
-                a += 1
-                if user[2] is not None:
-                    answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>\n\n'
-                else:
-                    answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n'
-                if a == 30:
-                    await message.answer(answer, parse_mode=ParseMode.HTML)
-                    answer = ''
-                    a = 0
-        if answer != '':
-            await message.answer(answer, parse_mode=ParseMode.HTML)
+        if db.check_user_cooldown(message.from_user.id) is False:
+            answer = ''
+            a = 0
+            users = db.get_all_users()
+            print(users)
+            for user in users:
+                if user is not None and user[4] is not None:
+                    a += 1
+                    if user[2] is not None:
+                        answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>\n\n'
+                    else:
+                        answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n'
+                    if a == 20:
+                        await message.answer(answer, parse_mode=ParseMode.HTML)
+                        answer = ''
+                        a = 0
+            if answer:
+                await message.answer(answer, parse_mode=ParseMode.HTML)
+            db.set_user_last_time_use_command(message.from_user.id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        else:
+            await message.answer("вы слишком часто используете эту команду")
     else:
         await message.answer("только для чата клуб ддрейсеров")
 
@@ -67,13 +71,24 @@ async def search_command(message: Message, command: CommandObject):
             else:
                 await message.answer(f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nаккаунт телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n', parse_mode=ParseMode.HTML)
         else:
-            if db.search_users_by_word(username) is not None:
-                users = db.search_users_by_word(username)
+            users = db.search_users_by_word(username)
+            if not users:
+                await message.answer('Пользователь не был найден')
+                return
+            if len(users) == 1:
+                user = db.get_by_tt_username(users[0][4])
+                if user[2] is not None:
+                    await message.answer(
+                        f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nаккаунт телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>\n\n',
+                        parse_mode=ParseMode.HTML)
+                else:
+                    await message.answer(
+                        f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nаккаунт телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n',
+                        parse_mode=ParseMode.HTML)
+            else:
                 ttnames = ''
                 for user in users:
                     ttnames += f" {user[4]} "
                 await message.answer(f'возможно вы имели ввиду кого-то из их? {ttnames}')
-            else:
-                await message.answer('пользователь не был найден')
     else:
         await message.answer('только для чата клуб ддрейсеров')
