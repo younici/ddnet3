@@ -22,14 +22,11 @@ async def delluser_command(message: Message, command: CommandObject):
         if message.from_user.id == 1610414602:
             try:
                 id = command.args
-            except ValueError:
-                print('костыль')
-            if message.reply_to_message is not None:
-                db.del_user(message.reply_to_message.from_user.id)
-            else:
                 if id is not None:
                     db.del_user(id)
-            await message.answer('пользователь был удалён из базы данных')
+                    await message.answer('пользователь был удалён из базы данных')
+            except ValueError:
+                await message.answer('не верный айди')
         else:
             await message.answer('только для админа')
     else:
@@ -168,6 +165,25 @@ async def updateDB_command(message: Message, command: CommandObject):
     if message.chat.id == -1002072690518:
         if message.from_user.id == 1610414602:
             await updb.notmain()
+        else:
+            await message.answer('только для админа')
+    else:
+        await message.answer('только для чата клуб ддрейсеров')
+
+@router.message(Command('UsersLink'))
+async def UsersLink_command(message: Message, command: CommandObject):
+    if message.chat.id == -1002072690518:
+        if message.from_user.id == 1610414602:
+            if command.args is None:
+                await message.answer('вы не ввели ссылку')
+                return
+            try:
+                link = command.args
+            except ValueError:
+                await message.answer("некоректно введеные данные")
+                return
+            db.set_users_link(link)
+            await message.answer(f'вы установили ссылку "{link}"')
         else:
             await message.answer('только для админа')
     else:

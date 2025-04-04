@@ -1,14 +1,14 @@
 import sqlite3
 import datetime
 
-pathDB = 'Database/data.db'
+pathDB = 'C:\\Users\\younici\\Desktop\\test\\data.db'
 with sqlite3.connect(pathDB) as db:
     cursor = db.cursor()
     cursor.execute(""" CREATE TABLE IF NOT EXISTS users(local_id INTEGER, id INTEGER, name TEXT, username TEXT, tt_username TEXT) """)
-    cursor.execute(""" CREATE TABLE IF NOT EXISTS params(updMessage INTEGER, commandCooldown INTEGER, updMessageText TEXT) """)
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS params(updMessage INTEGER, commandCooldown INTEGER, updMessageText TEXT, usersLink TEXT) """)
     cursor.execute("SELECT COUNT(*) FROM params")
     if cursor.fetchone()[0] == 0:
-        cursor.execute("""INSERT INTO params(updMessage, commandCooldown, updMessageText) VALUES(1, 30, 'база данных обновлена!')""")
+        cursor.execute("""INSERT INTO params(updMessage, commandCooldown, updMessageText, usersLink) VALUES(1, 30, 'база данных обновлена', 'https://ddglobal.org/public/tt/table.html')""")
     cursor.execute(""" CREATE TABLE IF NOT EXISTS "last use time command"(id INTEGER, time TEXT) """)
     db.commit()
 
@@ -62,6 +62,18 @@ def set_user_last_time_use_command(id, time):
         else:
             cursor.execute("""UPDATE "last use time command" SET time = ? WHERE id = ?""", (time, id))
         db.commit()
+
+def set_users_link(link):
+    with sqlite3.connect(pathDB) as db:
+        cursor = db.cursor()
+        cursor.execute("""UPDATE params SET usersLink = ?""", (link,))
+        db.commit()
+
+def get_users_link():
+    with sqlite3.connect(pathDB) as db:
+        cursor = db.cursor()
+        cursor.execute("""SELECT usersLink FROM params""")
+        return cursor.fetchone()[0]
 
 def get_all_users():
     with sqlite3.connect(pathDB) as db:

@@ -11,23 +11,7 @@ router = Router()
 async def users_command(message: Message):
     if message.chat.id == -1002072690518:
         if db.check_user_cooldown(message.from_user.id) is False:
-            answer = ''
-            a = 0
-            users = db.get_all_users()
-            print(users)
-            for user in users:
-                if user is not None and user[4] is not None:
-                    a += 1
-                    if user[2] is not None:
-                        answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="https://t.me/{user[2]}">{user[3]}</a>\n\n'
-                    else:
-                        answer += f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", "")}</a>\nимя телеграмм: <a href="tg://user?id={user[1]}">{user[3]}</a>\n\n'
-                    if a == 20:
-                        await message.answer(answer, parse_mode=ParseMode.HTML)
-                        answer = ''
-                        a = 0
-            if answer:
-                await message.answer(answer, parse_mode=ParseMode.HTML)
+            await message.answer(f'список телеграмм аккаунтов + тик ток аккаунтов: {db.get_users_link()}')
             db.set_user_last_time_use_command(message.from_user.id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         else:
             await message.answer("вы слишком часто используете эту команду")
@@ -35,8 +19,25 @@ async def users_command(message: Message):
         await message.answer("только для чата клуб ддрейсеров")
 
 @router.message(Command('userinfo'))
-async def user_command(message: Message):
+async def user_command(message: Message, command: CommandObject):
     if message.chat.id == -1002072690518:
+        if command.args is not None:
+            try:
+                id = command.args
+            except ValueError:
+                print('костыль')
+            if id is not None:
+                if db.get_user(id) is not None:
+                    user = db.get_user(id)
+                    if user[4] is not None:
+                        await message.answer(
+                            f'аккаунт в тик ток: <a href="https://www.tiktok.com/{user[4]}">{user[4].replace("@", " ")}</a>',
+                            parse_mode=ParseMode.HTML)
+                        return
+                    else:
+                        await message.answer('в базе данных нету юзернейма этого пользователя')
+                else:
+                    await message.answer("пользователя нету в базе данных")
         if message.reply_to_message is not None:
             if db.get_user(message.reply_to_message.from_user.id) is not None:
                 user = db.get_user(message.reply_to_message.from_user.id)
