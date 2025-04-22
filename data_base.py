@@ -1,10 +1,11 @@
 import sqlite3
 import datetime
 
-pathDB = 'C:\\Users\\younici\\Desktop\\test\\data.db'
+pathDB = 'Database/data.db'
 with sqlite3.connect(pathDB) as db:
     cursor = db.cursor()
-    cursor.execute(""" CREATE TABLE IF NOT EXISTS users(local_id INTEGER, id INTEGER, name TEXT, username TEXT, tt_username TEXT) """)
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS users(local_id INTEGER, id INTEGER, name TEXT, username TEXT, tt_username TEXT, in_group INTEGER) """)
+    # cursor.execute("ALTER TABLE users ADD COLUMN in_group INTEGER")
     cursor.execute(""" CREATE TABLE IF NOT EXISTS params(updMessage INTEGER, commandCooldown INTEGER, updMessageText TEXT, usersLink TEXT) """)
     cursor.execute("SELECT COUNT(*) FROM params")
     if cursor.fetchone()[0] == 0:
@@ -68,6 +69,18 @@ def set_users_link(link):
         cursor = db.cursor()
         cursor.execute("""UPDATE params SET usersLink = ?""", (link,))
         db.commit()
+
+def set_in_group(id, status):
+    with sqlite3.connect(pathDB) as db:
+        cursor = db.cursor()
+        cursor.execute("""UPDATE users SET in_group = ? WHERE id = ?""", (status, id))
+        db.commit()
+
+def get_in_group(id):
+    with sqlite3.connect(pathDB) as db:
+        cursor = db.cursor()
+        cursor.execute("""SELECT in_group FROM users WHERE id = ?""", (id,))
+        return cursor.fetchone()[0]
 
 def get_users_link():
     with sqlite3.connect(pathDB) as db:

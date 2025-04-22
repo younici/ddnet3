@@ -1,6 +1,8 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
+import data_base as db
+import datetime
 
 router = Router()
 COMMANDS='''
@@ -12,7 +14,6 @@ COMMANDS='''
 /dellme - удалить себя из базы данных (списка тик токеров)
 /search @<ttusername> - (можно без @ и написать основную часть имени) поиск пользователя в списке чата\n
 для админов:
-/updmessage <status> (1 или 0) - задать статус отправки сообщения об автоматических обновлениях базы данных
 /delluser <id> - даляет пользователя из базы данных
 /admr @<ttusername> <id> - регистрация пользователей которые сами не добавили свой ник
 /UMT <text> - обновить сообщение об автоматических обновлениях
@@ -25,8 +26,12 @@ COMMANDS='''
 
 @router.message(Command('start'))
 async def start_command(message: Message):
-    await message.answer('введите команду /help для помощи')
+    await message.reply('введите команду /help для помощи')
 
 @router.message(Command('help'))
 async def help_command(message: Message):
-    await message.answer(COMMANDS)
+    if db.check_user_cooldown(message.from_user.id) is False:
+        await message.reply(COMMANDS)
+        db.set_user_last_time_use_command(message.from_user.id, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    else:
+        await message.reply("вы слишком часто используете эту команду")
