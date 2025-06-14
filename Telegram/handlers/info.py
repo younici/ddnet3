@@ -15,17 +15,14 @@ async def users_command(message: Message):
 
 @router.message(Command('userinfo'))
 async def user_command(message: Message, command: CommandObject):
-    # Проверка на чат
     if message.chat.id != -1002072690518:
         await message.reply("только для чата клуб ддрейсеров")
         return
 
     user = None
 
-    # Приоритет: ответ на сообщение
     if message.reply_to_message:
         user = await db.get_user_by_tg_id(message.reply_to_message.from_user.id)
-    # Если указан аргумент
     elif command.args:
         arg = command.args.strip()
         if arg.startswith("@"):
@@ -44,7 +41,7 @@ async def user_command(message: Message, command: CommandObject):
     if user and user[7]:  # user[7] — это tt_username
         tiktok_username = user[7].replace("@", "").strip()
         await message.reply(
-            f'аккаунт в тик ток: <a href="https://www.tiktok.com/@{tiktok_username}">@{tiktok_username}</a>',
+            f'аккаунт в тик ток: <a href="https://www.tiktok.com/@{tiktok_username}">{user[5]} *</a>',
             parse_mode=ParseMode.HTML
         )
     else:
